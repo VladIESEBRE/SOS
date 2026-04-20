@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoTI · App</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: #e8ecea;
+    color: #1a2e1a;
+    line-height: 1.4;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+
+  /* ========== PHONE FRAME ========== */
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: #f4f6f4;
+    border-radius: 48px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.25), 0 0 0 12px #1a1a1a, 0 0 0 13px #333;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .notch {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 32px;
+    background: #1a1a1a;
+    border-radius: 20px;
+    z-index: 20;
+  }
+
+  .status-bar {
+    height: 44px;
+    padding: 14px 28px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .status-icons { display: flex; gap: 5px; font-size: 12px; }
+
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 90px;
+    scrollbar-width: none;
+  }
+  .content::-webkit-scrollbar { display: none; }
+
+  .screen { display: none; padding: 8px 20px 20px; animation: fadeIn 0.3s ease; }
+  .screen.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ========== TOP HEADER ========== */
+  .top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 8px 0;
+  }
+  .greeting h2 { font-size: 13px; color: #7a8a7a; font-weight: 400; }
+  .greeting h1 { font-size: 20px; font-weight: 600; color: #1a2e1a; }
+  .top-actions { display: flex; gap: 10px; align-items: center; }
+  .icon-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    transition: transform 0.15s;
+  }
+  .icon-btn:active { transform: scale(0.92); }
+  .notif-dot {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #e04545;
+    border: 2px solid white;
+  }
+  .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2d6b2d, #4a9e4a);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .avatar:active { transform: scale(0.92); }
+
+  /* ========== PERIOD SELECTOR ========== */
+  .period-selector {
+    background: white;
+    border-radius: 14px;
+    padding: 4px;
+    display: flex;
+    gap: 2px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .period-btn {
+    flex: 1;
+    padding: 9px 6px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    color: #7a8a7a;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .period-btn.active {
+    background: #2d6b2d;
+    color: white;
+    box-shadow: 0 2px 8px rgba(45, 107, 45, 0.3);
+  }
+
+  .period-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding: 0 4px;
+  }
+  .period-range {
+    font-size: 11px;
+    color: #7a8a7a;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .period-range::before {
+    content: '📅';
+    font-size: 11px;
+  }
+  .update-info {
+    font-size: 10px;
+    color: #9aa59a;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .live-dot {
+    width: 6px; height: 6px;
+    background: #2d6b2d;
+    border-radius: 50%;
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0.3; } }
+
+  /* ========== HERO CARD ========== */
+  .hero-card {
+    background: linear-gradient(135deg, #2d6b2d 0%, #4a9e4a 100%);
+    border-radius: 24px;
+    padding: 22px;
+    color: white;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .hero-card:active { transform: scale(0.98); }
+  .hero-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+  }
+  .hero-card::after {
+    content: '';
+    position: absolute;
+    bottom: -50px; left: -30px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+  .hero-label {
+    font-size: 12px;
+    opacity: 0.85;
+    margin-bottom: 6px;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+  }
+  .hero-value {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    position: relative;
+    transition: all 0.3s;
+  }
+  .hero-value span {
+    font-size: 16px;
+    font-weight: 400;
+    opacity: 0.85;
+  }
+  .hero-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255,255,255,0.2);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    position: relative;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+  }
+
+  /* Mini spark in hero */
+  .hero-spark {
+    margin-top: 14px;
+    position: relative;
+    height: 30px;
+  }
+
+  /* ========== SECTION TITLE ========== */
+  .section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    margin-top: 4px;
+  }
+  .section-title h3 { font-size: 15px; font-weight: 600; }
+  .section-title a {
+    font-size: 12px;
+    color: #2d6b2d;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* ========== KPI GRID ========== */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .kpi-mini {
+    background: white;
+    border-radius: 16px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .kpi-mini:active { transform: scale(0.97); }
+  .kpi-mini:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+  .kpi-mini-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .kpi-icon-sm {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .kpi-icon-sm.green { background: #e8f2e8; }
+  .kpi-icon-sm.blue { background: #e3ecf2; }
+  .kpi-icon-sm.orange { background: #fef3e2; }
+  .kpi-icon-sm.red { background: #fde8e8; }
+  .kpi-icon-sm.purple { background: #ece8f2; }
+  .kpi-icon-sm.teal { background: #e2f2ee; }
+  .trend-badge {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s;
+  }
+  .trend-badge.good { background: #e8f2e8; color: #2d6b2d; }
+  .trend-badge.warn { background: #fef3e2; color: #c27a1a; }
+  .trend-badge.bad { background: #fde8e8; color: #c23a3a; }
+  .kpi-mini-label { font-size: 11px; color: #7a8a7a; margin-bottom: 2px; }
+  .kpi-mini-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a2e1a;
+    transition: all 0.3s;
+  }
+  .kpi-mini-value span { font-size: 11px; color: #7a8a7a; font-weight: 400; }
+
+  /* ========== CHART PANEL ========== */
+  .chart-panel {
+    background: white;
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+  .chart-panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .chart-panel h4 { font-size: 14px; font-weight: 600; }
+  .chart-panel-total {
+    font-size: 11px;
+    color: #7a8a7a;
+  }
+  .chart-panel-total strong { color: #2d6b2d; font-weight: 600; }
+
+  .mini-bar-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 100px;
+    gap: 4px;
+  }
+  .mini-bar-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+  }
+  .mini-bar {
+    width: 100%;
+    background: linear-gradient(180deg, #4a9e4a, #2d6b2d);
+    border-radius: 4px 4px 0 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 6px;
+  }
+  .mini-bar-group:hover .mini-bar {
+    background: linear-gradient(180deg, #5bb85b, #3a8a3a);
+    transform: scaleY(1.03);
+    transform-origin: bottom;
+  }
+  .mini-bar-group.active .mini-bar {
+    background: linear-gradient(180deg, #c9a82e, #c27a1a);
+  }
+  .mini-bar-label { font-size: 10px; color: #7a8a7a; }
+  .mini-bar-group.active .mini-bar-label { color: #c27a1a; font-weight: 600; }
+
+  /* Tooltip for bars */
+  .bar-tooltip {
+    position: absolute;
+    background: #1a2e1a;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 500;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 30;
+    transform: translate(-50%, -100%);
+    margin-top: -8px;
+    white-space: nowrap;
+  }
+  .bar-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #1a2e1a;
+  }
+  .bar-tooltip.show { opacity: 1; }
+
+  /* ========== ALERTS ========== */
+  .alert-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .alert-item {
+    background: white;
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .alert-item:active { transform: scale(0.98); }
+  .alert-dot-sm {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+  .alert-dot-sm.red { background: #fde8e8; color: #c23a3a; }
+  .alert-dot-sm.amber { background: #fef3e2; color: #c27a1a; }
+  .alert-dot-sm.green { background: #e8f2e8; color: #2d6b2d; }
+  .alert-info { flex: 1; min-width: 0; }
+  .alert-info strong {
+    font-size: 13px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 1px;
+  }
+  .alert-info span { font-size: 11px; color: #7a8a7a; }
+  .alert-arrow { color: #c0c5c0; font-size: 16px; }
+
+  /* ========== BACK BAR ========== */
+  .back-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 8px 0;
+  }
+  .back-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    transition: transform 0.15s;
+  }
+  .back-btn:active { transform: scale(0.92); }
+  .back-bar h1 { font-size: 20px; font-weight: 600; }
+
+  /* ========== WELCOME ========== */
+  .welcome-greeting { padding: 20px 0 20px; text-align: center; }
+  .welcome-greeting h1 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .welcome-greeting h1 span { color: #2d6b2d; }
+  .welcome-greeting p { font-size: 13px; color: #7a8a7a; padding: 0 20px; }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .stat-mini {
+    background: white;
+    border-radius: 14px;
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .stat-mini:active { transform: scale(0.96); }
+  .stat-mini-val { font-size: 18px; font-weight: 700; color: #2d6b2d; }
+  .stat-mini-lbl { font-size: 10px; color: #7a8a7a; margin-top: 2px; line-height: 1.2; }
+
+  .main-action-card {
+    background: linear-gradient(135deg, #2d6b2d 0%, #4a9e4a 100%);
+    border-radius: 20px;
+    padding: 20px;
+    color: white;
+    cursor: pointer;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s;
+  }
+  .main-action-card:active { transform: scale(0.98); }
+  .main-action-card.alt {
+    background: linear-gradient(135deg, #1e4d62 0%, #3a7a95 100%);
+  }
+  .main-action-card::after {
+    content: '→';
+    margin-left: auto;
+    font-size: 22px;
+  }
+  .main-action-icon {
+    width: 48px; height: 48px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .main-action-text h3 { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+  .main-action-text p { font-size: 11px; opacity: 0.85; }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .feature-tile {
+    background: white;
+    border-radius: 14px;
+    padding: 12px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .feature-tile:active { transform: scale(0.94); }
+  .feature-tile-icon { font-size: 22px; margin-bottom: 4px; }
+  .feature-tile-name { font-size: 10px; font-weight: 500; line-height: 1.2; }
+
+  /* ========== ANALYSIS ========== */
+  .big-chart {
+    background: white;
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 12px;
+  }
+  .big-chart-head { margin-bottom: 14px; }
+  .big-chart-head .label { font-size: 11px; color: #7a8a7a; }
+  .big-chart-head .value {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1a2e1a;
+  }
+  .big-chart-head .value span {
+    font-size: 12px;
+    color: #2d6b2d;
+    margin-left: 6px;
+  }
+
+  .legend-row {
+    display: flex;
+    gap: 14px;
+    font-size: 10px;
+    color: #7a8a7a;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .summary-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .summary-card {
+    background: white;
+    border-radius: 14px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .summary-card:active { transform: scale(0.97); }
+  .summary-card .lbl { font-size: 10px; color: #7a8a7a; margin-bottom: 2px; }
+  .summary-card .val { font-size: 20px; font-weight: 700; color: #2d6b2d; }
+
+  .compare-list {
+    background: white;
+    border-radius: 20px;
+    padding: 16px;
+  }
+  .compare-list h4 { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+  .compare-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f2f0;
+    cursor: pointer;
+  }
+  .compare-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .compare-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .compare-values { font-size: 11px; color: #7a8a7a; }
+  .compare-delta {
+    padding: 4px 9px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .compare-delta.pos { background: #e8f2e8; color: #2d6b2d; }
+  .compare-delta.neg { background: #fde8e8; color: #c23a3a; }
+
+  /* ========== BOTTOM NAV ========== */
+  .bottom-nav {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: white;
+    border-top: 1px solid #e0e5e0;
+    padding: 10px 20px 28px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 15;
+  }
+  .nav-item {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    padding: 4px 10px;
+    color: #7a8a7a;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .nav-item .nav-icon { font-size: 22px; transition: transform 0.2s; }
+  .nav-item.active { color: #2d6b2d; }
+  .nav-item.active .nav-icon { transform: scale(1.15); }
+  .nav-item:active .nav-icon { transform: scale(0.9); }
+
+  .home-indicator {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 4px;
+    background: #1a1a1a;
+    border-radius: 2px;
+    z-index: 20;
+  }
+
+  /* ========== TOAST ========== */
+  .toast {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1a2e1a;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 25;
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Animated KPI value */
+  .animate-value {
+    animation: pulseVal 0.4s ease;
+  }
+  @keyframes pulseVal {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); color: #4a9e4a; }
+    100% { transform: scale(1); }
+  }
+
+  @media (max-width: 450px) {
+    body { padding: 0; background: #f4f6f4; }
+    .phone {
+      width: 100%;
+      height: 100vh;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .notch, .home-indicator { display: none; }
+    .status-bar { padding-top: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="notch"></div>
+
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-icons">
+      <span>📶</span>
+      <span>🔋</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ========== SCREEN 1: DASHBOARD ========== -->
+    <section class="screen active" id="screen-dashboard">
+      <div class="top-header">
+        <div class="greeting">
+          <h2>Bon dia 👋</h2>
+          <h1>Maria Puig</h1>
+        </div>
+        <div class="top-actions">
+          <button class="icon-btn" onclick="showToast('🔔 3 notificacions noves')">
+            🔔
+            <span class="notif-dot"></span>
+          </button>
+          <div class="avatar" onclick="showToast('👤 Perfil')">MP</div>
+        </div>
+      </div>
+
+      <!-- Period selector -->
+      <div class="period-selector">
+        <button class="period-btn" data-period="day">Dia</button>
+        <button class="period-btn" data-period="week">Setmana</button>
+        <button class="period-btn active" data-period="month">Mes</button>
+        <button class="period-btn" data-period="year">Any</button>
+      </div>
+
+      <div class="period-info">
+        <div class="period-range" id="periodRange">1 abril – 30 abril 2026</div>
+        <div class="update-info">
+          <span class="live-dot"></span>
+          <span id="updateTime">Fa 3 min</span>
+        </div>
+      </div>
+
+      <!-- Hero card -->
+      <div class="hero-card" onclick="goToAnalysis()">
+        <div class="hero-label">
+          <span>Petjada de carboni</span>
+          <span id="heroPeriodLabel">· aquest mes</span>
+        </div>
+        <div class="hero-value" id="heroValue">184.7 <span>tCO₂e</span></div>
+        <div class="hero-trend" id="heroTrend">↓ 12.4% vs mes anterior</div>
+        <svg class="hero-spark" viewBox="0 0 300 30" preserveAspectRatio="none" id="heroSpark">
+          <path d="M0,20 L30,18 L60,22 L90,15 L120,18 L150,12 L180,15 L210,10 L240,14 L270,8 L300,10"
+                fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <!-- KPIs -->
+      <div class="section-title">
+        <h3>Indicadors clau</h3>
+        <a onclick="showToast('📊 Veure tots els KPIs')">Veure tots</a>
+      </div>
+      <div class="kpi-grid" id="kpiGrid">
+        <div class="kpi-mini" onclick="showToast('⚡ Detalls PUE')">
+          <div class="kpi-mini-head">
+            <div class="kpi-icon-sm green">⚡</div>
+            <span class="trend-badge good" data-trend="pue">↓ 0.08</span>
+          </div>
+          <div class="kpi-mini-label">PUE</div>
+          <div class="kpi-mini-value" data-kpi="pue">1.42</div>
+        </div>
+
+        <div class="kpi-mini" onclick="showToast('🔌 Detalls Consum IT')">
+          <div class="kpi-mini-head">
+            <div class="kpi-icon-sm blue">🔌</div>
+            <span class="trend-badge warn" data-trend="consum">↑ 2%</span>
+          </div>
+          <div class="kpi-mini-label">Consum IT</div>
+          <div class="kpi-mini-value" data-kpi="consum">2.84 <span>GWh</span></div>
+        </div>
+
+        <div class="kpi-mini" onclick="showToast('💧 Detalls WUE')">
+          <div class="kpi-mini-head">
+            <div class="kpi-icon-sm teal">💧</div>
+            <span class="trend-badge good" data-trend="wue">↓ 5%</span>
+          </div>
+          <div class="kpi-mini-label">WUE aigua</div>
+          <div class="kpi-mini-value" data-kpi="wue">0.38 <span>L/kWh</span></div>
+        </div>
+
+        <div class="kpi-mini" onclick="showToast('♻️ Detalls E-Waste')">
+          <div class="kpi-mini-head">
+            <div class="kpi-icon-sm red">♻️</div>
+            <span class="trend-badge bad" data-trend="ewaste">↑ 18%</span>
+          </div>
+          <div class="kpi-mini-label">E-Waste</div>
+          <div class="kpi-mini-value" data-kpi="ewaste">1.2 <span>t</span></div>
+        </div>
+
+        <div class="kpi-mini" onclick="showToast('🏠 Detalls Teletreball')">
+          <div class="kpi-mini-head">
+            <div class="kpi-icon-sm purple">🏠</div>
+            <span class="trend-badge good" data-trend="tele">↑ 4%</span>
+          </div>
+          <div class="kpi-mini-label">Teletreball</div>
+          <div class="kpi-mini-value" data-kpi="tele">68 <span>%</span></div>
+        </div>
+
+        <div class="kpi-mini" onclick="showToast('🎯 Progrés Net-Zero')">
+          <div class="kpi-mini-head">
+            <div class="kpi-icon-sm orange">🎯</div>
+            <span class="trend-badge good" data-trend="nz">+3%</span>
+          </div>
+          <div class="kpi-mini-label">Net-Zero</div>
+          <div class="kpi-mini-value" data-kpi="nz">62 <span>%</span></div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="chart-panel">
+        <div class="chart-panel-head">
+          <h4 id="chartTitle">Consum per dia</h4>
+          <div class="chart-panel-total">Total: <strong id="chartTotal">18.4 MWh</strong></div>
+        </div>
+        <div class="mini-bar-chart" id="barChart">
+          <!-- Bars generated dynamically -->
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="section-title">
+        <h3>Alertes recents</h3>
+        <a onclick="showToast('⚠️ 7 alertes actives')">Veure totes</a>
+      </div>
+      <div class="alert-list">
+        <div class="alert-item" onclick="showToast('⚠️ Obrint alerta CPD-02')">
+          <div class="alert-dot-sm red">⚠️</div>
+          <div class="alert-info">
+            <strong>PUE CPD-02 fora de rang</strong>
+            <span>Fa 18 minuts · Crítica</span>
+          </div>
+          <div class="alert-arrow">›</div>
+        </div>
+        <div class="alert-item" onclick="showToast('💧 Detall consum aigua')">
+          <div class="alert-dot-sm amber">💧</div>
+          <div class="alert-info">
+            <strong>Consum aigua +8% setmanal</strong>
+            <span>Fa 2 hores · Mitjana</span>
+          </div>
+          <div class="alert-arrow">›</div>
+        </div>
+        <div class="alert-item" onclick="showToast('✅ Veure certificat')">
+          <div class="alert-dot-sm green">✅</div>
+          <div class="alert-info">
+            <strong>Certificat renovable renovat</strong>
+            <span>Ahir · Info</span>
+          </div>
+          <div class="alert-arrow">›</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SCREEN 2: WELCOME ========== -->
+    <section class="screen" id="screen-welcome">
+      <div class="top-header">
+        <div class="greeting">
+          <h2>Benvinguda 👋</h2>
+          <h1>EcoTI</h1>
+        </div>
+        <div class="top-actions">
+          <div class="avatar">MP</div>
+        </div>
+      </div>
+
+      <div class="welcome-greeting">
+        <h1>Hola, <span>Maria</span>!</h1>
+        <p>Monitoritza l'impacte TI cap al Net-Zero 2030</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-mini" onclick="showToast('☁️ CO₂ estalviat any')">
+          <div class="stat-mini-val">847</div>
+          <div class="stat-mini-lbl">tCO₂ estalviat</div>
+        </div>
+        <div class="stat-mini" onclick="showToast('💻 Dispositius actius')">
+          <div class="stat-mini-val">12K</div>
+          <div class="stat-mini-lbl">Dispositius</div>
+        </div>
+        <div class="stat-mini" onclick="showToast('🎯 Progrés Net-Zero')">
+          <div class="stat-mini-val">62%</div>
+          <div class="stat-mini-lbl">Net-Zero</div>
+        </div>
+      </div>
+
+      <div class="section-title"><h3>Accés ràpid</h3></div>
+
+      <div class="main-action-card" onclick="showScreen('dashboard')">
+        <div class="main-action-icon">📊</div>
+        <div class="main-action-text">
+          <h3>Dashboard</h3>
+          <p>KPIs en temps real</p>
+        </div>
+      </div>
+
+      <div class="main-action-card alt" onclick="showScreen('analysis')">
+        <div class="main-action-icon">📈</div>
+        <div class="main-action-text">
+          <h3>Anàlisi d'evolució</h3>
+          <p>Tendències i comparatives</p>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top: 20px;"><h3>Més funcionalitats</h3></div>
+
+      <div class="feature-grid">
+        <div class="feature-tile" onclick="showToast('♻️ Gestió de recursos')">
+          <div class="feature-tile-icon">♻️</div>
+          <div class="feature-tile-name">Recursos</div>
+        </div>
+        <div class="feature-tile" onclick="showToast('🎯 Objectiu Net-Zero')">
+          <div class="feature-tile-icon">🎯</div>
+          <div class="feature-tile-name">Net-Zero</div>
+        </div>
+        <div class="feature-tile" onclick="showToast('📄 Informes')">
+          <div class="feature-tile-icon">📄</div>
+          <div class="feature-tile-name">Informes</div>
+        </div>
+        <div class="feature-tile" onclick="showToast('🔔 Notificacions')">
+          <div class="feature-tile-icon">🔔</div>
+          <div class="feature-tile-name">Avisos</div>
+        </div>
+        <div class="feature-tile" onclick="showToast('⚠️ Alertes')">
+          <div class="feature-tile-icon">⚠️</div>
+          <div class="feature-tile-name">Alertes</div>
+        </div>
+        <div class="feature-tile" onclick="showToast('👤 Perfil')">
+          <div class="feature-tile-icon">👤</div>
+          <div class="feature-tile-name">Perfil</div>
+        </div>
+        <div class="feature-tile" onclick="showToast('📋 Resum executiu')">
+          <div class="feature-tile-icon">📋</div>
+          <div class="feature-tile-name">Resum</div>
+        </div>
+        <div class="feature-tile" onclick="showToast('⚙️ Ajustos')">
+          <div class="feature-tile-icon">⚙️</div>
+          <div class="feature-tile-name">Ajustos</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SCREEN 3: ANALYSIS ========== -->
+    <section class="screen" id="screen-analysis">
+      <div class="back-bar">
+        <button class="back-btn" onclick="showScreen('dashboard')">←</button>
+        <h1>Anàlisi d'evolució</h1>
+      </div>
+
+      <!-- Period selector -->
+      <div class="period-selector">
+        <button class="period-btn" data-ana-period="week">Setmana</button>
+        <button class="period-btn" data-ana-period="month">Mes</button>
+        <button class="period-btn active" data-ana-period="year">Any</button>
+        <button class="period-btn" data-ana-period="all">Tot</button>
+      </div>
+
+      <div class="period-info">
+        <div class="period-range" id="anaPeriodRange">Últims 12 mesos · Abr 2025 – Abr 2026</div>
+        <div class="update-info">
+          <span class="live-dot"></span>
+          <span>En directe</span>
+        </div>
+      </div>
+
+      <div class="big-chart">
+        <div class="big-chart-head">
+          <div class="label">Petjada de carboni</div>
+          <div class="value" id="anaValue">184.7 <span id="anaChange">↓ 38% acum.</span></div>
+        </div>
+
+        <svg viewBox="0 0 340 180" style="width: 100%; height: 180px;" id="anaChart">
+          <line x1="25" y1="30" x2="330" y2="30" stroke="#e0e5e0" stroke-dasharray="3 3"/>
+          <line x1="25" y1="75" x2="330" y2="75" stroke="#e0e5e0" stroke-dasharray="3 3"/>
+          <line x1="25" y1="120" x2="330" y2="120" stroke="#e0e5e0" stroke-dasharray="3 3"/>
+
+          <text x="0" y="33" fill="#9a9a9a" font-size="9" id="yLabel1">300</text>
+          <text x="0" y="78" fill="#9a9a9a" font-size="9" id="yLabel2">200</text>
+          <text x="0" y="123" fill="#9a9a9a" font-size="9" id="yLabel3">100</text>
+
+          <g id="xLabels">
+            <text x="30" y="165" fill="#9a9a9a" font-size="9">2023</text>
+            <text x="120" y="165" fill="#9a9a9a" font-size="9">2024</text>
+            <text x="210" y="165" fill="#9a9a9a" font-size="9">2025</text>
+            <text x="300" y="165" fill="#9a9a9a" font-size="9">2026</text>
+          </g>
+
+          <path id="prevLine" d="M30,50 L80,55 L130,60 L180,68 L230,75 L280,82 L315,88"
+                fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="3 3"/>
+
+          <path id="targetLine" d="M30,45 L315,130"
+                fill="none" stroke="#c27a1a" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2d6b2d" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#2d6b2d" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path id="areaPath" d="M30,70 L80,78 L130,85 L180,92 L230,100 L280,110 L315,118 L315,140 L30,140 Z"
+                fill="url(#g1)"/>
+
+          <path id="mainLine" d="M30,70 L80,78 L130,85 L180,92 L230,100 L280,110 L315,118"
+                fill="none" stroke="#2d6b2d" stroke-width="2.5"/>
+
+          <g id="dataPoints">
+            <circle cx="30" cy="70" r="3" fill="#2d6b2d"/>
+            <circle cx="130" cy="85" r="3" fill="#2d6b2d"/>
+            <circle cx="230" cy="100" r="3" fill="#2d6b2d"/>
+            <circle cx="315" cy="118" r="5" fill="white" stroke="#2d6b2d" stroke-width="2.5"/>
+          </g>
+        </svg>
+
+        <div class="legend-row">
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #2d6b2d;"></div>
+            <span>Actual</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #999;"></div>
+            <span>Període anterior</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background: #c27a1a;"></div>
+            <span>Objectiu</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-row">
+        <div class="summary-card" onclick="showToast('📉 Reducció total')">
+          <div class="lbl">Reducció total</div>
+          <div class="val" id="sum1">−38%</div>
+        </div>
+        <div class="summary-card" onclick="showToast('📊 Mitjana anual')">
+          <div class="lbl">Mitjana</div>
+          <div class="val" id="sum2">212</div>
+        </div>
+        <div class="summary-card" onclick="showToast('⭐ Millor registre')">
+          <div class="lbl">Mínim</div>
+          <div class="val" id="sum3">178</div>
+        </div>
+        <div class="summary-card" onclick="showToast('🔮 Projecció IA')">
+          <div class="lbl">Projecció</div>
+          <div class="val" id="sum4">142</div>
+        </div>
+      </div>
+
+      <div class="compare-list">
+        <h4>Comparativa per CPD</h4>
+        <div class="compare-item" onclick="showToast('🏢 CPD Principal BCN')">
+          <div>
+            <div class="compare-name">CPD Principal BCN</div>
+            <div class="compare-values">1.842 → 1.124 tCO₂e</div>
+          </div>
+          <span class="compare-delta pos">−39%</span>
+        </div>
+        <div class="compare-item" onclick="showToast('🏢 CPD Secundari MAD')">
+          <div>
+            <div class="compare-name">CPD Secundari MAD</div>
+            <div class="compare-values">1.260 → 982 tCO₂e</div>
+          </div>
+          <span class="compare-delta pos">−22%</span>
+        </div>
+        <div class="compare-item" onclick="showToast('🏢 Edge València')">
+          <div>
+            <div class="compare-name">Edge València</div>
+            <div class="compare-values">342 → 285 tCO₂e</div>
+          </div>
+          <span class="compare-delta pos">−17%</span>
+        </div>
+        <div class="compare-item" onclick="showToast('⚠️ Edge Sevilla empitjora')">
+          <div>
+            <div class="compare-name">Edge Sevilla</div>
+            <div class="compare-values">298 → 324 tCO₂e</div>
+          </div>
+          <span class="compare-delta neg">+9%</span>
+        </div>
+        <div class="compare-item" onclick="showToast('☁️ Cloud proveïdors')">
+          <div>
+            <div class="compare-name">Cloud proveïdors</div>
+            <div class="compare-values">486 → 412 tCO₂e</div>
+          </div>
+          <span class="compare-delta pos">−15%</span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Bar tooltip -->
+  <div class="bar-tooltip" id="barTooltip"></div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-screen="dashboard">
+      <div class="nav-icon">🏠</div>
+      <span>Inici</span>
+    </button>
+    <button class="nav-item" data-screen="analysis">
+      <div class="nav-icon">📈</div>
+      <span>Anàlisi</span>
+    </button>
+    <button class="nav-item" data-screen="welcome">
+      <div class="nav-icon">⚡</div>
+      <span>Menú</span>
+    </button>
+    <button class="nav-item" onclick="showToast('👤 Perfil')">
+      <div class="nav-icon">👤</div>
+      <span>Perfil</span>
+    </button>
+  </nav>
+
+  <div class="home-indicator"></div>
+</div>
+
+<script>
+  // ======= DATA POR PERÍODO =======
+  const periodData = {
+    day: {
+      range: 'Avui · 20 abril 2026',
+      heroLabel: '· avui',
+      hero: '6.2',
+      heroUnit: 'tCO₂e',
+      heroTrend: '↓ 8% vs ahir',
+      update: 'Fa 3 min',
+      kpis: { pue: '1.38', consum: '94 MWh', wue: '0.36', ewaste: '42 kg', tele: '71%', nz: '62%' },
+      trends: { pue: '↓ 0.04', consum: '↓ 3%', wue: '↓ 2%', ewaste: '↑ 5%', tele: '↑ 2%', nz: '+0.1%' },
+      chartTitle: 'Consum per hora',
+      chartTotal: '94 MWh',
+      bars: [
+        { label: '0h', value: 30 },
+        { label: '4h', value: 25 },
+        { label: '8h', value: 60 },
+        { label: '12h', value: 85 },
+        { label: '16h', value: 90 },
+        { label: '20h', value: 55 },
+        { label: '23h', value: 40 }
+      ],
+      barUnit: 'MWh'
+    },
+    week: {
+      range: '14 – 20 abril 2026',
+      heroLabel: '· aquesta setmana',
+      hero: '43.5',
+      heroUnit: 'tCO₂e',
+      heroTrend: '↓ 9% vs setmana anterior',
+      update: 'Fa 8 min',
+      kpis: { pue: '1.40', consum: '656 MWh', wue: '0.37', ewaste: '280 kg', tele: '69%', nz: '62%' },
+      trends: { pue: '↓ 0.06', consum: '↓ 1%', wue: '↓ 3%', ewaste: '↑ 12%', tele: '↑ 3%', nz: '+0.5%' },
+      chartTitle: 'Consum per dia',
+      chartTotal: '656 MWh',
+      bars: [
+        { label: 'Dl', value: 55 },
+        { label: 'Dt', value: 70 },
+        { label: 'Dc', value: 80 },
+        { label: 'Dj', value: 65 },
+        { label: 'Dv', value: 90 },
+        { label: 'Ds', value: 40 },
+        { label: 'Dg', value: 35 }
+      ],
+      barUnit: 'MWh'
+    },
+    month: {
+      range: '1 abril – 30 abril 2026',
+      heroLabel: '· aquest mes',
+      hero: '184.7',
+      heroUnit: 'tCO₂e',
+      heroTrend: '↓ 12.4% vs mes anterior',
+      update: 'Fa 3 min',
+      kpis: { pue: '1.42', consum: '2.84 GWh', wue: '0.38', ewaste: '1.2 t', tele: '68%', nz: '62%' },
+      trends: { pue: '↓ 0.08', consum: '↑ 2%', wue: '↓ 5%', ewaste: '↑ 18%', tele: '↑ 4%', nz: '+3%' },
+      chartTitle: 'Consum per setmana',
+      chartTotal: '2.84 GWh',
+      bars: [
+        { label: 'S1', value: 70 },
+        { label: 'S2', value: 80 },
+        { label: 'S3', value: 85 },
+        { label: 'S4', value: 75 }
+      ],
+      barUnit: 'GWh'
+    },
+    year: {
+      range: 'Abril 2025 – Abril 2026',
+      heroLabel: '· aquest any',
+      hero: '2.215',
+      heroUnit: 'tCO₂e',
+      heroTrend: '↓ 22% vs any anterior',
+      update: 'Fa 12 min',
+      kpis: { pue: '1.45', consum: '34.1 GWh', wue: '0.41', ewaste: '14.8 t', tele: '65%', nz: '62%' },
+      trends: { pue: '↓ 0.12', consum: '↓ 8%', wue: '↓ 9%', ewaste: '↑ 22%', tele: '↑ 12%', nz: '+8%' },
+      chartTitle: 'Consum per mes',
+      chartTotal: '34.1 GWh',
+      bars: [
+        { label: 'M', value: 65 },
+        { label: 'J', value: 70 },
+        { label: 'J', value: 85 },
+        { label: 'A', value: 90 },
+        { label: 'S', value: 75 },
+        { label: 'O', value: 60 },
+        { label: 'N', value: 55 },
+        { label: 'D', value: 58 },
+        { label: 'G', value: 62 },
+        { label: 'F', value: 60 },
+        { label: 'M', value: 65 },
+        { label: 'A', value: 70 }
+      ],
+      barUnit: 'GWh'
+    }
+  };
+
+  // ======= RENDER BARS =======
+  function renderBars(periodKey) {
+    const data = periodData[periodKey];
+    const chart = document.getElementById('barChart');
+    chart.innerHTML = '';
+    data.bars.forEach((bar, i) => {
+      const group = document.createElement('div');
+      group.className = 'mini-bar-group';
+      group.innerHTML = `
+        <div class="mini-bar" style="height: 0%"></div>
+        <div class="mini-bar-label">${bar.label}</div>
+      `;
+      // Tooltip
+      group.addEventListener('mouseenter', (e) => {
+        const tooltip = document.getElementById('barTooltip');
+        const total = data.chartTotal;
+        const totalNum = parseFloat(total);
+        const unit = data.barUnit;
+        const val = ((bar.value / 100) * totalNum / data.bars.length * data.bars.length / data.bars.reduce((s,b)=>s+b.value,0) * data.bars.reduce((s,b)=>s+b.value,0) / data.bars.length).toFixed(1);
+        const calcVal = (bar.value * totalNum / data.bars.reduce((s,b)=>s+b.value,0)).toFixed(1);
+        tooltip.textContent = `${bar.label}: ${calcVal} ${unit}`;
+        const rect = group.getBoundingClientRect();
+        const phoneRect = document.querySelector('.phone').getBoundingClientRect();
+        tooltip.style.left = (rect.left - phoneRect.left + rect.width/2) + 'px';
+        tooltip.style.top = (rect.top - phoneRect.top) + 'px';
+        tooltip.classList.add('show');
+        document.querySelectorAll('.mini-bar-group').forEach(g => g.classList.remove('active'));
+        group.classList.add('active');
+      });
+      group.addEventListener('mouseleave', () => {
+        document.getElementById('barTooltip').classList.remove('show');
+        group.classList.remove('active');
+      });
+      chart.appendChild(group);
+      // Animate
+      setTimeout(() => {
+        group.querySelector('.mini-bar').style.height = bar.value + '%';
+      }, 50 + i * 40);
+    });
+    document.getElementById('chartTitle').textContent = data.chartTitle;
+    document.getElementById('chartTotal').textContent = data.chartTotal;
+  }
+
+  // ======= UPDATE DASHBOARD =======
+  function updatePeriod(periodKey) {
+    const data = periodData[periodKey];
+
+    // Hero
+    document.getElementById('heroValue').innerHTML = `${data.hero} <span>${data.heroUnit}</span>`;
+    document.getElementById('heroValue').classList.remove('animate-value');
+    void document.getElementById('heroValue').offsetWidth;
+    document.getElementById('heroValue').classList.add('animate-value');
+
+    document.getElementById('heroTrend').textContent = data.heroTrend;
+    document.getElementById('heroPeriodLabel').textContent = data.heroLabel;
+    document.getElementById('periodRange').textContent = data.range;
+    document.getElementById('updateTime').textContent = data.update;
+
+    // KPIs
+    Object.keys(data.kpis).forEach(k => {
+      const el = document.querySelector(`[data-kpi="${k}"]`);
+      if (el) {
+        const val = data.kpis[k];
+        // Preservar el span de unidad si existe
+        const hasSpan = el.querySelector('span');
+        if (val.includes(' ')) {
+          const [num, unit] = val.split(/ (.+)/);
+          el.innerHTML = `${num} <span>${unit}</span>`;
+        } else {
+          el.textContent = val;
+        }
+        el.classList.remove('animate-value');
+        void el.offsetWidth;
+        el.classList.add('animate-value');
+      }
+    });
+    // Trends
+    Object.keys(data.trends).forEach(k => {
+      const el = document.querySelector(`[data-trend="${k}"]`);
+      if (el) el.textContent = data.trends[k];
+    });
+
+    // Bars
+    renderBars(periodKey);
+  }
+
+  // ======= PERIOD BUTTONS (Dashboard) =======
+  document.querySelectorAll('.period-btn[data-period]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.period-btn[data-period]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const period = btn.dataset.period;
+      updatePeriod(period);
+      const names = { day: 'dia', week: 'setmana', month: 'mes', year: 'any' };
+      showToast(`📅 Dades de l'últim ${names[period]}`);
+    });
+  });
+
+  // ======= ANALYSIS PERIODS =======
+  const anaData = {
+    week: {
+      range: 'Última setmana · 14 – 20 abril',
+      value: '43.5',
+      change: '↓ 9% vs anterior',
+      y: [50, 40, 30],
+      xLabels: ['Dl', 'Dc', 'Dv', 'Dg'],
+      prevPath: 'M30,55 L110,60 L190,62 L270,65 L315,68',
+      targetPath: 'M30,50 L315,125',
+      areaPath: 'M30,75 L110,80 L190,85 L270,88 L315,92 L315,140 L30,140 Z',
+      mainPath: 'M30,75 L110,80 L190,85 L270,88 L315,92',
+      sum: ['−9%', '42', '40', '38']
+    },
+    month: {
+      range: 'Últim mes · Març – Abril 2026',
+      value: '184.7',
+      change: '↓ 12% vs anterior',
+      y: [250, 200, 150],
+      xLabels: ['S1', 'S2', 'S3', 'S4'],
+      prevPath: 'M30,50 L110,58 L190,65 L270,72 L315,78',
+      targetPath: 'M30,45 L315,130',
+      areaPath: 'M30,65 L110,75 L190,85 L270,95 L315,105 L315,140 L30,140 Z',
+      mainPath: 'M30,65 L110,75 L190,85 L270,95 L315,105',
+      sum: ['−12%', '194', '178', '168']
+    },
+    year: {
+      range: 'Últims 12 mesos · Abr 2025 – Abr 2026',
+      value: '2.215',
+      change: '↓ 22% vs anterior',
+      y: [300, 200, 100],
+      xLabels: ['Abr', 'Jul', 'Oct', 'Ene', 'Abr'],
+      prevPath: 'M30,40 L90,50 L150,55 L210,65 L270,72 L315,80',
+      targetPath: 'M30,50 L315,130',
+      areaPath: 'M30,55 L90,65 L150,75 L210,85 L270,95 L315,110 L315,140 L30,140 Z',
+      mainPath: 'M30,55 L90,65 L150,75 L210,85 L270,95 L315,110',
+      sum: ['−22%', '212', '178', '142']
+    },
+    all: {
+      range: 'Tot el període · 2022 – 2026',
+      value: '9.842',
+      change: '↓ 45% total',
+      y: [400, 300, 200],
+      xLabels: ['2022', '2023', '2024', '2025', '2026'],
+      prevPath: 'M30,35 L80,40 L130,48 L180,55 L230,62 L280,70 L315,78',
+      targetPath: 'M30,40 L315,130',
+      areaPath: 'M30,40 L80,55 L130,70 L180,80 L230,90 L280,105 L315,118 L315,140 L30,140 Z',
+      mainPath: 'M30,40 L80,55 L130,70 L180,80 L230,90 L280,105 L315,118',
+      sum: ['−45%', '245', '150', '95']
+    }
+  };
+
+  function updateAnalysis(periodKey) {
+    const d = anaData[periodKey];
+    document.getElementById('anaPeriodRange').textContent = d.range;
+    document.getElementById('anaValue').innerHTML = `${d.value} <span id="anaChange">${d.change}</span>`;
+    document.getElementById('yLabel1').textContent = d.y[0];
+    document.getElementById('yLabel2').textContent = d.y[1];
+    document.getElementById('yLabel3').textContent = d.y[2];
+
+    // X labels
+    const xLabels = document.getElementById('xLabels');
+    xLabels.innerHTML = '';
+    const step = 285 / (d.xLabels.length - 1);
+    d.xLabels.forEach((lbl, i) => {
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', 30 + i * step);
+      text.setAttribute('y', 165);
+      text.setAttribute('fill', '#9a9a9a');
+      text.setAttribute('font-size', '9');
+      text.textContent = lbl;
+      xLabels.appendChild(text);
+    });
+
+    document.getElementById('prevLine').setAttribute('d', d.prevPath);
+    document.getElementById('targetLine').setAttribute('d', d.targetPath);
+    document.getElementById('areaPath').setAttribute('d', d.areaPath);
+    document.getElementById('mainLine').setAttribute('d', d.mainPath);
+
+    document.getElementById('sum1').textContent = d.sum[0];
+    document.getElementById('sum2').textContent = d.sum[1];
+    document.getElementById('sum3').textContent = d.sum[2];
+    document.getElementById('sum4').textContent = d.sum[3];
+  }
+
+  document.querySelectorAll('.period-btn[data-ana-period]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.period-btn[data-ana-period]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateAnalysis(btn.dataset.anaPeriod);
+      const names = { week: 'setmana', month: 'mes', year: 'any', all: 'tot el període' };
+      showToast(`📅 Dades: ${names[btn.dataset.anaPeriod]}`);
+    });
+  });
+
+  // ======= NAVIGATION =======
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const activeNav = document.querySelector(`.nav-item[data-screen="${name}"]`);
+    if (activeNav) activeNav.classList.add('active');
+    document.querySelector('.content').scrollTo(0, 0);
+  }
+
+  document.querySelectorAll('.nav-item[data-screen]').forEach(item => {
+    item.addEventListener('click', () => showScreen(item.dataset.screen));
+  });
+
+  function goToAnalysis() { showScreen('analysis'); }
+
+  // ======= TOAST =======
+  let toastTimer;
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+  }
+
+  // ======= INIT =======
+  renderBars('month');
+</script>
+
+</body>
+</html>
